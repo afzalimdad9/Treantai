@@ -1,5 +1,4 @@
 // Imports
-import dotenv from 'dotenv'; dotenv.config({ path: './.env.local' });
 import axios from 'axios';
 import chalk from 'chalk';
 import Discord, {
@@ -8,7 +7,9 @@ import Discord, {
   ActivityType, ChannelType
 }
   from 'discord.js';
+import dotenv from 'dotenv';
 import { ChatGPTAPI } from 'chatgpt';
+process.env.NODE_ENV !== 'production' && dotenv.config({ path: './.env.local' });
 
 // Defines
 const activity = 'Minecraft'
