@@ -1,14 +1,16 @@
 // Imports
 import axios from 'axios';
 import chalk from 'chalk';
-import Discord, {
-  Client, REST, Partials,
-  GatewayIntentBits, Routes,
-  ActivityType, ChannelType
-}
-  from 'discord.js';
-import dotenv from 'dotenv';
 import { ChatGPTAPI } from 'chatgpt';
+import {
+  ActivityType, ChannelType,
+  Client,
+  GatewayIntentBits,
+  Partials,
+  REST,
+  Routes
+} from 'discord.js';
+import dotenv from 'dotenv';
 process.env.NODE_ENV !== 'production' && dotenv.config({ path: './.env.local' });
 
 // Defines
@@ -352,13 +354,20 @@ async function main() {
       await fetch('https://stablediffusionapi.com/api/v3/dreambooth', options)
         .then((response) => response.json())
         .then((response) => {
-          interaction.editReply(
-            {
-              files: [{ attachment: response.output[0], name: 'file.png' }]
-              , content: `Image Request generated for ${interaction.user}\n\n**Prompt:** ${prompt}\n${((negative_prompt && `**Negative Prompt:** ${negative_prompt}\n` || '') + (width && `**Width:** ${width}\n` || '') + (height && `**Height:** ${height}\n` || '') + (model_id && `**Style:** ${model_id}\n` || '') + (steps && `**Steps:** ${steps}\n` || '') + (seed && `**Seed:** ${seed}\n` || '') + (guidance_scale && `**Guidance Scale:** ${guidance_scale}\n` || '')) || ''}`
+          let arr = [];
+          response.output.forEach((i, index) => {
+            arr.push({ attachment: i, name: `file${index}.png` });
+
+            if (arr.length === response.output.length) {
+              interaction.editReply(
+                {
+                  files: arr
+                  , content: `Image Request generated for ${interaction.user}\n\n**Prompt:** ${prompt}\n${((negative_prompt && `**Negative Prompt:** ${negative_prompt}\n` || '') + (width && `**Width:** ${width}\n` || '') + (height && `**Height:** ${height}\n` || '') + (model_id && `**Style:** ${model_id}\n` || '') + (steps && `**Steps:** ${steps}\n` || '') + (seed && `**Seed:** ${seed}\n` || '') + (guidance_scale && `**Guidance Scale:** ${guidance_scale}\n` || '')) || ''}`
+                }
+              );
+              client.user.setActivity(activity);
             }
-          );
-          client.user.setActivity(activity);
+          })
 
         }).catch(e => {
           console.error(e.message)
